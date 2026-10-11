@@ -11,7 +11,7 @@ async function main() {
     throw new Error('Usage: node scripts/build_reading.cjs --mermaid /path/to/mermaid.min.js');
   }
   const library = fs.readFileSync(path.resolve(args[1]), 'utf8');
-  const book = fs.readFileSync(path.join(root, 'BOOK.md'), 'utf8');
+  const book = fs.readFileSync(path.join(root, 'education', 'BOOK.md'), 'utf8');
   const out = path.join(root, 'build');
   fs.mkdirSync(out, { recursive: true });
   const sources = [];
@@ -20,13 +20,13 @@ async function main() {
     return `<div class="diagram" data-diagram="${index}"></div>`;
   });
   let content = marked.parse(diagramBook);
-  // Reading edition is one level below root; only local file references change.
-  content = content.replace(/href="(?!#|[a-z]+:)([^"]+)"/gi, 'href="../$1"');
+  // Reading edition is in root/build; links resolve into the education directory.
+  content = content.replace(/href="(?!#|[a-z]+:)([^"]+)"/gi, 'href="../education/$1"');
   const toc = [...book.matchAll(/^- \[([^\]]+)\]\(#(chapter-\d+)\)/gm)]
     .map((m) => `<a href="#${m[2]}">${m[1]}</a>`).join('');
   const html = `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FDE 案例集 · Blueberry</title><style>
+<title>教育 AI 应用实践 · Blueberry</title><style>
 :root{color-scheme:light;--ink:#243047;--muted:#637085;--accent:#6450c7;--line:#e4e6ef}
 *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:28px}
 body{margin:0;background:#f6f7fb;color:var(--ink);font:16px/1.95 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}
@@ -47,7 +47,7 @@ blockquote{border-left:3px solid #a99de5;padding-left:20px;color:var(--muted);ma
 @media(max-width:980px){aside{position:static;width:auto;padding:24px;border-bottom:1px solid var(--line)}nav{display:flex;gap:12px;flex-wrap:wrap}nav a{max-width:260px}main{margin:20px;padding:28px;max-width:none}}
 @media(max-width:600px){body{font-size:15px}main{margin:12px;padding:22px 18px}h1{font-size:26px}h2{font-size:22px}.diagram svg{max-width:none}}
 @media print{aside{display:none}main{margin:0;border:0;padding:0;max-width:none}pre,table,.diagram{break-inside:avoid}a{color:inherit}html{scroll-behavior:auto}}
-</style></head><body><aside><b>FDE 案例集</b><p>Blueberry · 教育卷 0.1<br>原创案例 / 工程方法 / 可运行示例</p><nav>${toc}</nav></aside><main>${content}</main></body></html>`;
+</style></head><body><aside><b>教育 AI 应用实践</b><p>AI 应用工程案例集 · Blueberry<br>教育篇</p><nav>${toc}</nav></aside><main>${content}</main></body></html>`;
   const browser = await chromium.launch({ headless: true,
     executablePath: process.env.FDE_BROWSER_EXECUTABLE || chromium.executablePath() });
   try {

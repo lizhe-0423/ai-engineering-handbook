@@ -1,6 +1,6 @@
 # 生成本地阅读版
 
-Markdown 正文和合订稿只需 Python 标准库：
+在仓库根目录生成 `education/BOOK.md`，只需 Python 标准库：
 
 ```bash
 python3 scripts/build_book.py
@@ -19,7 +19,7 @@ node scripts/build_reading.cjs --mermaid MERMAID_FILE
 
 Node 需要能够找到上述两个包；使用独立工具目录时可通过 `NODE_PATH` 指向其 `node_modules`。本次构建使用 Mermaid 11.12.0 的单文件浏览器库，下载入口见 [Mermaid 官方用法文档](https://mermaid.js.org/config/usage.html)；使用固定版本并遵守库的原许可。
 
-如果使用已有 Chromium/Chrome 可执行文件，可通过 `FDE_BROWSER_EXECUTABLE` 指定路径。脚本创建新的无头浏览器会话，只读取本书生成的 HTML，不使用个人浏览器配置。
+如果使用已有 Chromium/Chrome 可执行文件，可通过 `FDE_BROWSER_EXECUTABLE` 指定路径。脚本创建新的无头浏览器会话，只读取教育篇生成的 HTML，不使用个人浏览器配置。
 
 输出位于忽略跟踪的 `build/`：`reading.html`、各章流程图 SVG/PNG、桌面与移动截图，以及渲染结果。脚本遇到图语法错误会失败，不将未渲染代码当成流程图交付。
 
