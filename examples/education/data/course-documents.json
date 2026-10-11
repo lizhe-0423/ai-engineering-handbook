@@ -1,0 +1,6 @@
+[
+  {"id":"factorization","course_id":"math-demo","status":"approved","version":"0.1","title":"二次方程：因式分解","text":"二次方程因式分解：x^2-5x+6=(x-2)(x-3)。因为展开得到x^2-3x-2x+6，合并中间项为-5x。"},
+  {"id":"zero-product","course_id":"math-demo","status":"approved","version":"0.1","title":"零乘积与两个根","text":"当(x-2)(x-3)=0时，至少一个因子为零，因此x=2或x=3。代回原方程：4-10+6=0；9-15+6=0。"},
+  {"id":"other-course-example","course_id":"other-demo","status":"approved","version":"0.1","title":"跨课程过滤样本","text":"二次方程因式分解：本条专门检验跨课程材料不会泄漏。"},
+  {"id":"draft-example","course_id":"math-demo","status":"draft","version":"0.1","title":"未审核过滤样本","text":"二次方程因式分解：本条专门检验草稿材料不会进入模型。"}
+]

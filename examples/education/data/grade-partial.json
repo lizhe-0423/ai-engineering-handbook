@@ -1,0 +1,15 @@
+{
+  "question":"用因式分解法解 x^2-5x+6=0，写出全部根，并代入原式验证。",
+  "student_answer":"(x-2)(x-3)=0，所以 x=2。",
+  "rubric":[
+    {"id":"C1","max_score":2,"description":"按题目要求得到正确因式分解得2分；有正确变形进展但未完成得1分；没有相关正确步骤得0分；改用其他方法需教师按既定要求复核"},
+    {"id":"C2","max_score":2,"description":"正确写出两个根；本示例一个正确根给1分"},
+    {"id":"C3","max_score":1,"description":"将两个根分别代入原式检验"}
+  ],
+  "proposal":{"scores":[
+    {"criterion_id":"C1","score":2,"quote":"(x-2)(x-3)=0","reason":"分解正确"},
+    {"criterion_id":"C2","score":1,"quote":"x=2","reason":"只写一个根，按本示例量规给部分分"},
+    {"criterion_id":"C3","score":0,"quote":"","reason":"未代入检验"}
+  ]},
+  "provenance":"synthetic_proposed_grade_fixture"
+}
