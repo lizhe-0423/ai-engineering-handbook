@@ -33,16 +33,16 @@ def main():
         for pattern in patterns:
             if re.search(pattern, text):
                 issues.append(f'{name}: publication-hygiene pattern needs review')
-    fixtures = sorted((ROOT / 'examples/education/data').glob('*.json'))
+    fixtures = sorted((ROOT / 'education/examples/data').glob('*.json'))
     for path in fixtures:
         try:
             json.loads(path.read_text(encoding='utf-8'))
         except ValueError as exc:
             issues.append(f'{path.name}: invalid fixture: {exc}')
-    chapters = sorted((ROOT / 'chapters').glob('[0-9][0-9]-*.md'))
+    chapters = sorted((ROOT / 'education/chapters').glob('[0-9][0-9]-*.md'))
     if [path.name[:2] for path in chapters] != [f'{n:02d}' for n in range(10)]:
         issues.append('Expected preface 00 and chapters 01–09')
-    book = (ROOT / 'BOOK.md').read_text(encoding='utf-8')
+    book = (ROOT / 'education/BOOK.md').read_text(encoding='utf-8')
     anchors = set(re.findall(r'<a id="([^"]+)">', book))
     for target in re.findall(r'\]\(#(chapter-\d+)\)', book):
         if target not in anchors:

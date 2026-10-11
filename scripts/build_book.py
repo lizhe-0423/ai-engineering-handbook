@@ -1,9 +1,9 @@
-"""Build the root Markdown book from the chapter sources (standard library only)."""
+"""Build the education Markdown book from the chapter sources (standard library only)."""
 import posixpath
 import re
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[1] / 'education'
 CHAPTERS = sorted((ROOT / 'chapters').glob('[0-9][0-9]-*.md'))
 EXPECTED = [f'{number:02d}' for number in range(10)]
 
@@ -14,9 +14,9 @@ def build():
     anchors = {path.name: f'chapter-{path.name[:2]}' for path in CHAPTERS}
     titles = {path.name: path.read_text(encoding='utf-8').splitlines()[0].removeprefix('# ')
               for path in CHAPTERS}
-    sections = ['# FDE 案例集：从业务问题到 AI 应用交付\n\n'
-                '**Blueberry · 教育卷 0.1 · 审阅稿**\n\n'
-                '由 `chapters/` 生成；请修改单章后重新构建。案例与数据为原创合成材料。\n\n'
+    sections = ['# 教育 AI 应用实践\n\n'
+                '**Blueberry · AI 应用工程案例集 · 教育**\n\n'
+                '按章节连续阅读。单章目录与运行说明见 [教育首页](README.md)。\n\n'
                 '## 目录\n\n' + '\n'.join(
                     f'- [{titles[path.name]}](#{anchors[path.name]})' for path in CHAPTERS)]
     for path in CHAPTERS:

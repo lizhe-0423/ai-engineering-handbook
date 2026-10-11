@@ -4,7 +4,7 @@ import json
 import subprocess
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'examples' / 'education'))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'examples'))
 from core import retrieve, validate_qa_response, route_photo, validate_grade, publish_grade
 from model_client import parse_model_object
 
@@ -166,7 +166,7 @@ class ModelBoundaryTests(unittest.TestCase):
 class OfflineCLITests(unittest.TestCase):
     def run_case(self, *args):
         root = Path(__file__).resolve().parents[1]
-        proc = subprocess.run([sys.executable, str(root/'examples/education/run.py'), *args],
+        proc = subprocess.run([sys.executable, str(root/'examples/run.py'), *args],
                               cwd=root, capture_output=True, text=True, timeout=10)
         self.assertEqual(proc.returncode, 0, proc.stderr)
         return json.loads(proc.stdout)
@@ -178,11 +178,11 @@ class OfflineCLITests(unittest.TestCase):
         self.assertTrue(result['evidence'])
 
     def test_uncertain_photo_requests_confirmation(self):
-        result = self.run_case('photo', '--fixture', 'examples/education/data/photo-uncertain.json')
+        result = self.run_case('photo', '--fixture', 'examples/data/photo-uncertain.json')
         self.assertEqual(result['status'], 'ask_confirmation')
 
     def test_grade_returns_draft_instead_of_published_result(self):
-        result = self.run_case('grade', '--fixture', 'examples/education/data/grade-partial.json')
+        result = self.run_case('grade', '--fixture', 'examples/data/grade-partial.json')
         self.assertEqual(result['total'], 3)
         self.assertEqual(result['status'], 'teacher_review')
 
