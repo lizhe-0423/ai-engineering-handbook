@@ -1,0 +1,59 @@
+{
+  "courses": {
+    "math": {
+      "subject": "数学",
+      "teacher_style": "按已知条件、变形依据和结果依次讲解；提示模式只给首步。",
+      "allow_direct": true
+    },
+    "physics": {
+      "subject": "物理",
+      "teacher_style": "先明确物理量、适用条件与单位，再选择关系式；提示模式只给首步。",
+      "allow_direct": false
+    }
+  },
+  "questions": [
+    {
+      "id": "inequality-01",
+      "course_id": "math",
+      "status": "approved",
+      "text": "解不等式 2x+3>7",
+      "hint": "先在不等式两边同时减去 3，得到 2x>4。接下来需要把 x 的系数变成 1，除数的正负会怎样影响不等号？",
+      "answer": "两边同时减去 3，得到 2x>4。再同时除以正数 2，不等号方向不变，得到 x>2。注意 x=2 不满足原来的严格不等式。"
+    }
+  ],
+  "materials": [
+    {
+      "id": "speed-conversion",
+      "course_id": "physics",
+      "status": "approved",
+      "title": "速度单位换算",
+      "text": "1 km/h = 1000/3600 m/s。将 km/h 换成 m/s 时，数值除以 3.6。用秒表示时间时，应先把速度换成 m/s。"
+    },
+    {
+      "id": "uniform-motion",
+      "course_id": "physics",
+      "status": "approved",
+      "title": "匀速运动中的路程",
+      "text": "匀速运动的路程 s=v*t。使用这个关系式前，需要确认物体在所讨论的时间内速度大小不变，且速度、时间的单位相容。路程不应直接当作位移。"
+    },
+    {
+      "id": "draft-wrong-units",
+      "course_id": "physics",
+      "status": "draft",
+      "title": "待审核的速度与路程笔记",
+      "text": "故意放入的错误草稿：72 km/h 乘以 10 s 得 720 m。这条记录不能进入上下文。"
+    },
+    {
+      "id": "other-course-motion",
+      "course_id": "advanced-physics",
+      "status": "approved",
+      "title": "其他课程的运动资料",
+      "text": "这份资料属于其他课程，包含速度、匀速运动、路程等词语，也不能跨课程参与本次检索。"
+    }
+  ],
+  "cases": {
+    "math_bank": {"course_id": "math", "question": "解不等式 2x+3>7"},
+    "physics_rag": {"course_id": "physics", "question": "物体以 72 km/h 的速度匀速运动 10 s，求通过的路程。"},
+    "math_direct": {"course_id": "math", "question": "半径为 3 cm 的圆，其面积是多少？"}
+  }
+}

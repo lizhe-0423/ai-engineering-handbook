@@ -8,9 +8,9 @@
 
 | 领域 | 内容 | 阅读入口 |
 |---|---|---|
-| 📚 教育 | 教师经验整理、备课流程、课程答疑、拍照搜题、作业批改，以及评测和交付 | [进入教育目录 →](education/README.md) |
+| 📚 教育 | 序章、学科答疑、智能批改、AI 视频教学、数字名师、个性化学习、成长陪伴与 AI 智慧课堂 | [进入教育目录 →](education/README.md) |
 
-教育篇包含 9 章正文、配套 Python 示例、测试数据和表单。想连续阅读，可以打开[教育合订稿](education/BOOK.md)；想先看一个具体功能，可以从[答疑](education/chapters/04-course-qa.md)、[拍搜](education/chapters/05-photo-search.md)或[批改](education/chapters/06-homework-grading.md)开始。
+教育部分从[序章](education/00-preface/README.md)开始。学科答疑已经整理出一篇[完整教程](education/01-subject-qa/01-answering-pipeline.md)，并附有[可运行示例](education/01-subject-qa/examples/README.md)。
 
 ## 目录结构
 
@@ -18,18 +18,19 @@
 .
 ├── README.md                 总目录
 ├── education/                教育
-│   ├── README.md             教育目录与运行说明
-│   ├── chapters/             文章
-│   ├── examples/             示例代码与数据
-│   ├── tests/                程序检查
-│   ├── templates/            案例、量规与交付表单
-│   ├── research/             引用说明
-│   └── BOOK.md               教育合订稿
+│   ├── 00-preface/           序章
+│   ├── 01-subject-qa/        学科答疑
+│   ├── 02-grading/           智能批改
+│   ├── 03-video-teaching/    AI 视频教学
+│   ├── 04-digital-teacher/   数字名师
+│   ├── 05-personalized-learning/ 个性化学习
+│   ├── 06-learning-companion/   成长陪伴
+│   └── 07-smart-classroom/      AI 智慧课堂
 ├── scripts/                  构建与文档检查
-└── docs/                     维护说明与验证记录
+└── docs/                     维护说明与写作安排
 ```
 
-新领域完成具体案例后，再作为独立目录加入这里。[维护说明](education/chapters/09-case-library.md)介绍怎样让正文、规则、数据和代码保持一致。
+新领域完成具体案例后，再作为独立目录加入这里。教育篇的[写作安排](docs/plans/2026-10-12-education-rewrite-design.md)记录当前范围与推进顺序。
 
 ---
 
