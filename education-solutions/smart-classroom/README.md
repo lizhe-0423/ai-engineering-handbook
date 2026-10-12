@@ -9,8 +9,3 @@ AI 智慧课堂关注正在发生的教学。教师仍然决定教学目标、�
 目前这组文章先讨论一个场景。
 
 - [AI 实时视频教学](realtime-video-teaching.md)讨论数字教师、实时问答和真人教师接管怎样放进同一堂课。
-
-## 参考资料
-
-- [UNESCO 教师 AI 能力框架](https://www.unesco.org/en/articles/ai-competency-framework-teachers)
-- [教育部大屏幕交互式智能教学终端标准](https://www.moe.gov.cn/srcsite/A16/s3342/202601/W020260107510856463141.pdf)

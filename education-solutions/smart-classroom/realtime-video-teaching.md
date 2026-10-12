@@ -12,11 +12,4 @@ AI 视频教学最容易被看见的是数字形象和合成声音。系统进�
 
 真人接管应当是一项正常功能。教师可以暂停数字教师，修改当前回答，或者直接继续讲课。系统保存接管原因，课后再分析哪些问题适合自动处理，哪些内容需要补进课程资料。
 
-数字形象本身不会自动提高学习效果。已有研究发现，AI 生成教师与真人教师在不同任务上的表现并不一致，画面中的教师形象还可能增加某些程序性学习任务的认知负担。评价时应分别观察学习结果、注意力、互动质量和教师工作量。
-
-## 参考资料
-
-- [AI 生成教师与真人教师视频讲座的眼动研究](https://portal.fis.tum.de/en/publications/ai-generated-or-human-instructors-for-video-lectures-in-higher-ed/)
-- [AI 生成教师视频的参与度与学习表现研究](https://www.irrodl.org/index.php/irrodl/article/view/7815)
-- [人类制作与 AI 生成教学视频的实验研究](https://doi.org/10.1016/j.compedu.2024.105164)
-- [UNESCO 教师 AI 能力框架](https://www.unesco.org/en/articles/ai-competency-framework-teachers)
+数字形象本身不会自动提高学习效果。它在不同教学任务中的作用并不相同，画面信息过多还可能分散学生的注意力。评价这类产品时，应分别观察学习结果、注意力、互动质量和教师工作量，不能只看形象是否逼真、视频是否流畅。

@@ -11,9 +11,3 @@
 有些话题不能停留在聊天窗口。学生提到自伤、暴力、持续欺凌或严重心理困扰时，系统要停止普通陪伴流程，提供合适的求助入口，并按学校规则通知能够介入的人。AI 可以帮助识别风险，不能代替心理咨询、医疗服务和现实中的照护关系。
 
 成长陪伴是否有效，也不能只看聊天次数。更合适的观察包括计划完成情况、主动求助能力和学习节奏是否改善。任何效果判断都需要经过真实使用和长期观察。
-
-## 参考资料
-
-- [UNICEF 儿童 AI 指南](https://www.unicef.org/innocenti/reports/policy-guidance-ai-children)
-- [UNICEF 关于儿童与 AI 陪伴产品的政策简报](https://www.unicef.org/documents/when-ai-becomes-friend-child-rights-risks)
-- [UNESCO 在线学习个人数据与隐私保护指南](https://iite.unesco.org/publications/personal-data-and-privacy-protection-in-online-learning/)

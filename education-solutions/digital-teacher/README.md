@@ -14,8 +14,3 @@
 - [成长陪伴](learning-companion.md)帮助学生维持目标和节奏，同时守住安全边界。
 
 这四类能力可以共用教师知识和学生档案，服务目标却不同。答疑解决眼前的问题，批改解释一次作答，个性化学习安排后续路径，成长陪伴处理更长时间里的计划和反馈。
-
-## 参考资料
-
-- [UNESCO 教师 AI 能力框架](https://www.unesco.org/en/articles/ai-competency-framework-teachers)
-- [AI Digital Teacher 对人机协作学习影响的研究](https://link.springer.com/article/10.1186/s40561-026-00454-0)
