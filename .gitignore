@@ -1,7 +1,2 @@
-__pycache__/
-*.pyc
 .DS_Store
-.env
-.env.*
-.private/
 build/
