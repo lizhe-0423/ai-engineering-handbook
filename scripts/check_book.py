@@ -33,7 +33,7 @@ def main():
         for pattern in patterns:
             if re.search(pattern, text):
                 issues.append(f'{name}: publication-hygiene pattern needs review')
-    fixtures = sorted((ROOT / 'education/examples/data').glob('*.json'))
+    fixtures = sorted((ROOT / 'education').rglob('*.json'))
     for path in fixtures:
         try:
             json.loads(path.read_text(encoding='utf-8'))
