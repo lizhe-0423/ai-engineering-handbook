@@ -1,3 +1,0 @@
-[
-  {"id":"quadratic-01","course_id":"math-demo","status":"approved","text":"解方程 x^2-5x+6=0","answer":"x=2 或 x=3；因式分解为(x-2)(x-3)=0，代回原式两个根均成立。"}
-]
