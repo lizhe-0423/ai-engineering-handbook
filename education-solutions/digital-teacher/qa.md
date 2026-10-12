@@ -19,9 +19,3 @@
 题库建设也会影响答疑质量。新资料进入题库时，需要处理同题、近似题和变式题。旧资料修改或撤回以后，搜索索引也要同步更新。题库规模很大，却没有稳定的题目身份和版本关系，检索结果依然会混乱。
 
 答疑效果不能只看回答是否流畅。更有用的指标包括题目识别是否准确、资料是否来自当前课程、关键步骤有没有遗漏，以及学生得到提示后能否继续完成题目。模型给出答案只是其中一个环节。
-
-## 参考资料
-
-- [Retrieval-Augmented Generation 原论文](https://arxiv.org/abs/2005.11401)
-- [智能辅导系统与学习结果的元分析](https://doi.org/10.1037/a0037123)
-- [UNESCO 生成式 AI 教育与研究指南](https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research)
