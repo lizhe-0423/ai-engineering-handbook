@@ -1,4 +1,8 @@
-# AI 工程实践手册
+<p align="center">
+  <img src="assets/project-icon.png" alt="AI Engineering Handbook project icon" width="128">
+</p>
+
+<h1 align="center">AI 工程实践手册</h1>
 
 **Blueberry · AI Agent Engineer**
 
