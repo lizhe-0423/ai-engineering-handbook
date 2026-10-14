@@ -9,7 +9,7 @@
 
 | 专题 | 内容 | 阅读入口 |
 |---|---|---|
-| AI 教育解决方案 | 数字名师、学科答疑、智能批改、个性化学习与智慧课堂 | [开始阅读](education-solutions/README.md) |
+| AI 教育解决方案 | 数字名师、教师助手、智慧课堂、智能评价、成长服务与教育治理 | [开始阅读](education-solutions/README.md) |
 | 企业级 AI 生产平台 | 数据工程、模型工程、知识工程与智能体应用 | [开始阅读](enterprise-ai-platform/README.md) |
 | AI Agent 学习路线 | 从大模型应用开发走向 Agent 系统工程 | [开始阅读](agent-learning-path/README.md) |
 | AI Infra 学习路线 | 模型训练、推理服务、资源调度与系统优化 | [开始阅读](ai-infra-learning-path/README.md) |
