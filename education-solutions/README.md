@@ -9,10 +9,10 @@
 | 业务场景 | 场景说明 | 对应文章及内容 |
 |---|---|---|
 | [数字名师与智能学习服务](digital-teacher/README.md) | 面向学生的课程内答疑、辅导和学习路径安排 | [数字名师怎样回答一道题](digital-teacher/qa.md)讲题目识别、课程检索、教学策略和拒答边界。[个性化学习从学习记录开始](digital-teacher/personalized-learning.md)讲知识点映射、学习者状态、推荐约束和后续评测。[学生档案怎样成为长期记忆](digital-teacher/student-profile-memory.md)讲 Markdown 档案、会话压缩和跨会话更新。 |
-| [教师智能助手](teacher-assistant/README.md) | 面向教师和教研员的备课、资源加工与方案复核 | [智能备课怎样接进教师原有流程](teacher-assistant/lesson-planning.md)讲资料权限、Agent 工作流、版本差异和教师确认。[教师课件怎样从教学资料生成](teacher-assistant/courseware-generation.md)讲分页面生成、开源工具接入、局部修改与课件交付验收。 |
-| [AI 智慧课堂与实践教学](smart-classroom/README.md) | 面向正在发生的课堂、实验和实训，强调实时配合 | [AI 实时视频教学怎样进入课堂](smart-classroom/realtime-video-teaching.md)讲脚本、课件、音视频同步、延迟降级和真人接管。 |
+| [教师智能助手](teacher-assistant/README.md) | 面向教师和教研员的备课、资源加工与方案复核 | [智能备课怎样接进教师原有流程](teacher-assistant/lesson-planning.md)讲资料权限、Agent 工作流、版本差异和教师确认。[教师课件怎样从教学资料生成](teacher-assistant/courseware-generation.md)讲分页面生成、局部修改与课件交付。[教师经验怎样变成可复用的教学 Skill](teacher-assistant/teaching-skill-library.md)讲方法整理、审核、评测与共享维护。 |
+| [AI 智慧课堂与实践教学](smart-classroom/README.md) | 面向正在发生的课堂、实验和实训，强调实时配合 | [AI 实时视频教学怎样进入课堂](smart-classroom/realtime-video-teaching.md)讲脚本、课件、音视频同步、延迟降级和真人接管。[教师怎样用 AI 制作互动教学工具](smart-classroom/interactive-teaching-tools.md)讲教学交互、代码检查、受限预览与发布。 |
 | [智能作业与教育评价](assessment/README.md) | 面向作答处理、反馈和评价复核 | [智能批改要留下可以复核的依据](assessment/grading.md)讲输入校验、评分量规、证据链、复核队列和一致性评测。 |
 | [学生成长与生涯服务](student-development/README.md) | 面向较长周期的计划跟进、求助和风险转介 | [学习陪伴先从一项任务做起](student-development/learning-companion.md)讲记忆边界、未成年人隐私、风险分级和人工响应。 |
-| [学校运营与教育治理](school-operations/README.md) | 面向招生、教务和校园服务的咨询与事项办理 | [校园服务 Agent 怎样安全地办一件事](school-operations/campus-service-agent.md)讲意图识别、权限、工具调用、幂等和审计。 |
+| [学校运营与教育治理](school-operations/README.md) | 面向校园事项办理，以及教师 AI 实践的组织与管理 | [校园服务 Agent 怎样安全地办一件事](school-operations/campus-service-agent.md)讲意图识别、权限、工具调用、幂等和审计。[教师 AI 培训怎样变成可验收的教学实践](school-operations/teacher-ai-practice-program.md)讲任务选择、成果复核、试点观察与维护。 |
 
 读这些文章时，可以把一条共同的判断线放在心里。模型输出流畅，只能说明交互像样。教育产品是否可用，还要看资料是否可靠，流程能否回退，人工责任是否清楚，结果有没有帮助学习或完成业务。
