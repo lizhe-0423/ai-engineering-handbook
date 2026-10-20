@@ -14,3 +14,5 @@
 | [智能体服务与业务编排](agent-applications/README.md) | 企业问答、任务分流、工作流执行、人工接管与系统集成 |
 
 四个部分可以独立建设，也可以组成完整链路。平台设计需要先解决数据和责任边界，再考虑模型能力与交互形式。
+
+具体业务可以从[复杂文档解析与转换](knowledge-engineering/document-conversion.md)和[岗位带教 Agent](agent-applications/workplace-coaching-agent.md)开始看，分别说明资料怎样加工成可靠输入，以及方法怎样进入可复核的任务流程。

@@ -12,6 +12,9 @@
 
 学习 RAG 的文档处理、检索和答案生成链路，再让模型调用搜索、数据库与业务接口。工具输入需要明确的数据结构，执行结果也要经过校验。
 
+- [复杂文档怎样解析、转换并通过验收](../enterprise-ai-platform/knowledge-engineering/document-conversion.md)讲文档进入知识系统以前的处理与质量检查。
+- [企业知识和工具怎样交给 Agent](../ai-native/enterprise-context-and-tools.md)集中解释规则、知识、Skill 与工具的分工。
+
 ## 第三阶段　Agent 系统
 
 加入任务拆解、状态保存、短期记忆和人工接管。随后研究单智能体与多智能体的适用边界，以及长任务中的重试、超时和恢复。
@@ -20,7 +23,8 @@
 
 建立日志与 Trace，保存模型调用、工具参数、运行结果和业务状态。再用任务级评测比较 Agent 的新旧版本，检查一次修改解决了什么，又让哪些原有任务发生了退化。
 
-- [Agent 评测怎样判断一次修改有没有真的变好](agent-evaluation.md)
+- [怎样看清一次 Agent 执行](../ai-native/agent-observability-and-evaluation.md)讲轨迹采集、诊断与证据保留。
+- [Agent 评测怎样判断一次修改有没有真的变好](agent-evaluation.md)讲任务完成标准、轨迹约束、评分与版本对照。
 
 ## 第五阶段　生产治理与安全
 

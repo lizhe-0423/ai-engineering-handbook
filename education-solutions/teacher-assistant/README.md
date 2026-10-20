@@ -10,6 +10,7 @@
 
 - [智能备课怎样接进教师原有流程](lesson-planning.md)从一次备课任务出发，讨论资料准备、Agent 分工、教师复核和版本保存。
 - [教师课件怎样从教学资料生成](courseware-generation.md)从教案和旧课件加工出发，讨论分页面生成、开源工具接入、局部修改、PPTX 交付和实际工作量验收。
+- [一份教学资料怎样变成可用的题库](question-bank-ingestion.md)讨论资料解析、题目结构、人工补录、去重、审核发布和质量检查。
 - [教师经验怎样变成可复用的教学 Skill](teaching-skill-library.md)从错题讲解出发，讨论经验整理、任务说明、工具检查、教研审核与共享版本维护。
 
 需要制作可操作的课堂页面时，可以继续读[教师怎样用 AI 制作互动教学工具](../smart-classroom/interactive-teaching-tools.md)。学校怎样组织教师试用和复盘，见[教师 AI 培训怎样变成可验收的教学实践](../school-operations/teacher-ai-practice-program.md)。
