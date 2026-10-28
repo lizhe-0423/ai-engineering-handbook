@@ -17,7 +17,7 @@
 | 企业级 AI 生产平台 | 数据工程、模型工程、知识工程与智能体应用 | [开始阅读](enterprise-ai-platform/README.md) |
 | AI Agent 学习路线 | 从大模型应用开发走向 Agent 系统工程 | [开始阅读](agent-learning-path/README.md) |
 | AI Infra 学习路线 | 模型训练、推理服务、资源调度与系统优化 | [开始阅读](ai-infra-learning-path/README.md) |
-| AI Native | 研发范式、Agent Harness、运行环境、可信安全与可观测 | [开始阅读](ai-native/README.md) |
+| AI Native 研发实践 | 研发任务组织、Agent Harness、执行环境、权限与团队交付 | [开始阅读](ai-native/README.md) |
 
 ---
 

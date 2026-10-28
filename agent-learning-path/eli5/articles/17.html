@@ -1,0 +1,1021 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="description" content="用一份可回放的账本，理解事件记录怎样支持状态恢复：投影、检查点与外部对账。">
+<title>事件记录怎样支持状态恢复 · AI Agent 图解书</title>
+<style>
+:root{
+  --paper:#eceeea;
+  --surface:#f7f8f5;
+  --panel:#f1f3ef;
+  --ink:#121a1a;
+  --ink-soft:#2b3533;
+  --muted:#5b6663;
+  --line:#cdd3cc;
+  --line-strong:#aab3ac;
+  --teal:#1f5a63;
+  --teal-soft:rgba(31,90,99,.08);
+  --rust:#9c3f28;
+  --rust-soft:rgba(156,63,40,.08);
+  --green:#2c6550;
+  --amber:#7d6120;
+  --serif:"Songti SC","Noto Serif CJK SC","Source Han Serif SC",STSong,serif;
+  --sans:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",-apple-system,BlinkMacSystemFont,sans-serif;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:16px;
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:inherit;text-decoration:none}
+img,svg{display:block;max-width:100%}
+h1,h2,h3,p,dl,dd,figure{margin:0}
+[hidden]{display:none!important}
+::selection{background:rgba(31,90,99,.16);color:var(--ink)}
+a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--teal);outline-offset:3px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.wrap{max-width:1280px;margin:0 auto;padding:0 clamp(20px,4.4vw,64px)}
+.micro{font:600 10px/1.6 var(--mono);letter-spacing:.18em;color:var(--muted);text-transform:uppercase;display:block}
+
+.site-head{border-bottom:1px solid var(--line)}
+.site-head .wrap{display:flex;align-items:center;justify-content:space-between;gap:24px;padding-top:22px;padding-bottom:22px}
+.brand{display:flex;align-items:center;gap:14px}
+.brand-mark{width:30px;height:30px;border:1px solid var(--ink);display:grid;place-items:center;font:600 11px var(--mono);letter-spacing:.02em;flex:none}
+.brand b{display:block;font-size:12px;letter-spacing:.16em;font-weight:700}
+.brand small{display:block;font:500 9.5px var(--mono);letter-spacing:.18em;color:var(--muted);margin-top:3px}
+.site-head nav{display:flex;align-items:center;gap:18px;font:600 10.5px var(--mono);letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.site-head nav .sep{width:36px;height:1px;background:var(--line-strong)}
+.site-head nav a{color:var(--muted);transition:color .18s}
+.site-head nav a:hover{color:var(--teal)}
+.site-head nav strong{color:var(--teal);font-weight:600}
+
+.hero{padding:clamp(38px,6vw,72px) 0 clamp(32px,4.4vw,52px);border-bottom:1px solid var(--line)}
+.hero-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:clamp(24px,3.6vw,38px)}
+.hero-meta .chip{background:var(--ink);color:var(--paper);font:600 10.5px var(--mono);letter-spacing:.12em;padding:6px 9px}
+.hero-meta .topic{font:600 10.5px var(--mono);letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+.hero-meta .rule{flex:1;height:1px;background:var(--line);min-width:24px}
+.hero-meta .mech{font:600 10.5px var(--mono);letter-spacing:.14em;color:var(--teal);text-transform:uppercase}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.42fr) minmax(0,.82fr);gap:clamp(28px,4vw,68px);align-items:start}
+h1{
+  font-family:var(--serif);
+  font-weight:600;
+  font-size:clamp(42px,6.2vw,80px);
+  line-height:1.1;
+  letter-spacing:-.01em;
+  color:var(--ink);
+}
+h1 .dim{color:var(--teal)}
+.hero-side{padding-top:8px;min-width:0}
+.hero-alias{font:600 10.5px var(--mono);letter-spacing:.13em;color:var(--teal);margin-bottom:12px}
+.hero-lede{font-size:16px;line-height:1.95;color:var(--ink-soft);max-width:37ch}
+.hero-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line);margin:26px 0 26px}
+.hero-facts>div{padding:14px 14px 0 0;border-right:1px solid var(--line);min-width:0}
+.hero-facts>div:last-child{border-right:0;padding-right:0}
+.hero-facts dt{font:600 9.5px var(--mono);letter-spacing:.14em;color:var(--muted);margin-bottom:6px}
+.hero-facts dd{font-size:13px;font-weight:650;line-height:1.5;color:var(--ink)}
+.jump{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:700;padding-bottom:5px;border-bottom:1px solid var(--ink);transition:color .18s,border-color .18s}
+.jump span{transition:transform .2s ease-out}
+.jump:hover{color:var(--teal);border-color:var(--teal)}
+.jump:hover span{transform:translateY(3px)}
+
+/* ---------- replay bench ---------- */
+.bench{margin-top:clamp(34px,4.6vw,56px)}
+.bench-bar{display:flex;justify-content:space-between;align-items:flex-end;gap:22px;flex-wrap:wrap;margin-bottom:16px}
+.bench-title h2{font-family:var(--serif);font-size:clamp(23px,2.8vw,32px);font-weight:600;line-height:1.3;margin-top:8px}
+.bench-tabs{display:flex;border:1px solid var(--line-strong);background:var(--surface);flex-wrap:wrap}
+.bench-tabs button{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 13px;border-right:1px solid var(--line);
+  font-size:12.5px;font-weight:650;color:var(--muted);
+  transition:background .18s,color .18s;
+}
+.bench-tabs button:last-child{border-right:0}
+.bench-tabs button span{font:600 9.5px var(--mono);letter-spacing:.06em;opacity:.75}
+.bench-tabs button:hover:not([aria-pressed="true"]){background:var(--paper);color:var(--ink)}
+.bench-tabs button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.bench-tabs button[aria-pressed="true"] span{opacity:.7}
+
+.bench-grid{display:grid;grid-template-columns:minmax(0,1.32fr) minmax(0,1fr);border:1px solid var(--line-strong);background:var(--surface)}
+.log-col{min-width:0;border-right:1px solid var(--line-strong);display:flex;flex-direction:column}
+.log-foot{margin:auto 18px 15px;padding-top:13px;border-top:1px dashed var(--line);font:600 9px var(--mono);letter-spacing:.12em;color:var(--muted)}
+.state-col{min-width:0;background:var(--panel);display:flex;flex-direction:column}
+.col-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line);font:600 9.5px var(--mono);letter-spacing:.14em;color:var(--muted)}
+.col-head span:last-child{color:var(--teal);white-space:nowrap}
+.log{list-style:none;margin:0;padding:0}
+.log-row{
+  position:relative;display:grid;grid-template-columns:50px minmax(0,1fr) auto;gap:12px;align-items:start;
+  padding:13px 18px 13px 16px;border-bottom:1px solid var(--line);
+  transition:background .2s,opacity .2s;
+}
+.log-row:last-child{border-bottom:0}
+.log-row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:transparent;transition:background .2s}
+.log-row[data-status="applied"]::before{background:var(--teal)}
+.log-row[data-kind="side"][data-status="applied"]::before{background:var(--rust)}
+.log-row[data-status="applied"]{background:#f0f3ee}
+.log-row[data-status="folded"]{opacity:.4}
+.log-row[data-status="locked"]{opacity:.62}
+.log-row[data-status="pending"] .log-name{color:var(--muted);font-weight:500}
+.log-row[data-status="locked"] .log-name{color:var(--muted);font-weight:500}
+.log-row.is-new{animation:rowin .34s ease-out}
+@keyframes rowin{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+.log-id{font:600 11px/1.7 var(--mono);letter-spacing:.06em;color:var(--teal);padding-top:2px}
+.log-row[data-kind="side"] .log-id{color:var(--rust)}
+.log-main{display:flex;flex-direction:column;gap:2px;min-width:0}
+.log-name{font-size:14.5px;font-weight:650;line-height:1.45;color:var(--ink);overflow-wrap:break-word}
+.log-detail{font-size:12px;line-height:1.55;color:var(--muted);overflow-wrap:break-word}
+.log-tag{
+  font:600 9px var(--mono);letter-spacing:.08em;padding:3px 6px;margin-top:1px;
+  border:1px solid var(--line-strong);color:var(--muted);white-space:nowrap;
+  transition:border-color .2s,color .2s;
+}
+.log-row[data-kind="side"] .log-tag,.log-row[data-kind="side"] .log-id{color:var(--rust)}
+.log-row[data-kind="side"] .log-tag{border-color:rgba(156,63,40,.42)}
+.log-row[data-kind="checkpoint"] .log-tag,.log-row[data-kind="result"] .log-tag,.log-row[data-kind="query"] .log-tag,
+.log-row[data-kind="checkpoint"] .log-id,.log-row[data-kind="result"] .log-id,.log-row[data-kind="query"] .log-id{color:var(--teal)}
+.log-row[data-kind="checkpoint"] .log-tag,.log-row[data-kind="result"] .log-tag,.log-row[data-kind="query"] .log-tag{border-color:rgba(31,90,99,.4)}
+
+.state-list{margin:0;padding:4px 20px 0}
+.state-list>div{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:10px 0;border-bottom:1px solid var(--line)}
+.state-list dt{font-size:12px;color:var(--muted);letter-spacing:.02em}
+.state-list dd{font:600 13.5px var(--mono);letter-spacing:.01em;color:var(--ink);text-align:right}
+.state-list dd.is-changed{animation:flash .65s ease-out}
+@keyframes flash{0%{color:var(--teal)}100%{color:var(--ink)}}
+.side-ledger{margin:auto 20px 20px;border:1px solid var(--line-strong);background:var(--surface);padding:13px 14px}
+.side-ledger-head{display:flex;justify-content:space-between;gap:10px;font:600 9px var(--mono);letter-spacing:.12em;color:var(--muted);margin-bottom:8px}
+.side-ledger-head span:last-child{color:var(--rust);white-space:nowrap}
+.side-count{display:flex;align-items:baseline;gap:9px}
+.side-count strong{font-family:var(--serif);font-size:38px;line-height:.95;font-weight:600;color:var(--ink)}
+.side-count span{font-size:11.5px;color:var(--muted)}
+.side-note{font-size:11.5px;line-height:1.7;color:var(--muted);margin-top:9px}
+.bench-controls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:13px 18px;border-top:1px solid var(--line-strong);background:var(--surface)}
+.btn{
+  border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);
+  padding:9px 13px;font-size:12px;font-weight:650;letter-spacing:.02em;
+  transition:background .16s,border-color .16s,color .16s,opacity .16s;
+}
+.btn:hover{background:var(--paper)}
+.btn:disabled{opacity:.38;cursor:not-allowed}
+.btn-solid{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.btn-solid:hover:not(:disabled){background:#263130;border-color:#263130}
+.btn[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:#f2f5f1}
+.btn-outline{border-color:var(--teal);color:var(--teal);background:transparent}
+.btn-outline:hover:not(:disabled){background:var(--teal-soft);color:var(--teal)}
+.btn-outline:disabled{border-color:var(--line-strong);color:var(--muted)}
+.progress{margin:0 0 0 auto;font:500 10.5px var(--mono);letter-spacing:.05em;color:var(--muted)}
+.bench-caption{display:flex;gap:14px;align-items:flex-start;border-top:1px solid var(--line);padding-top:13px;margin-top:0}
+.bench-caption .tag{
+  flex:none;font:600 9px var(--mono);letter-spacing:.1em;color:var(--teal);
+  border:1px solid rgba(31,90,99,.4);padding:4px 7px;margin-top:2px;white-space:nowrap;
+}
+.bench-caption p{font-size:13px;line-height:1.8;color:var(--ink-soft);max-width:74ch}
+
+/* ---------- figures ---------- */
+.section{margin-top:clamp(52px,7.5vw,92px)}
+.section-head{display:grid;grid-template-columns:190px minmax(0,1fr);gap:26px;border-top:2px solid var(--ink);padding-top:15px;margin-bottom:26px;align-items:start}
+.section-head .micro{padding-top:6px}
+.section-head h2{font-family:var(--serif);font-size:clamp(25px,3.1vw,38px);font-weight:600;line-height:1.3;margin-top:6px}
+.section-head p{font-size:13.5px;line-height:1.85;color:var(--muted);margin-top:10px;max-width:66ch}
+.figure{border:1px solid var(--line);background:var(--surface)}
+.figure+.figure{margin-top:22px}
+.figure-head{display:flex;align-items:baseline;gap:13px;padding:13px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.figure-head .idx{font:600 10.5px var(--mono);color:var(--teal);letter-spacing:.08em}
+.figure-head h3{font-size:16px;font-weight:650;line-height:1.4}
+.figure-head .fig-tag{margin-left:auto;font:600 9px var(--mono);letter-spacing:.08em;color:var(--muted);border:1px solid var(--line-strong);padding:3px 6px;white-space:nowrap}
+.fig-canvas{overflow-x:auto;overflow-y:hidden}
+.figure svg{display:block;width:100%;height:auto;background:var(--surface)}
+.figure figcaption{display:flex;gap:14px;align-items:flex-start;padding:13px 18px;border-top:1px solid var(--line);font-size:12.5px;line-height:1.75;color:var(--ink-soft)}
+.figure figcaption b{flex:none;font-weight:650;color:var(--ink);white-space:nowrap}
+
+/* svg typography */
+.figure svg text{font-family:var(--sans)}
+.figure svg .s-kick{font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.13em;fill:var(--muted)}
+.s-name{font-size:18.5px;font-weight:600;fill:var(--ink)}
+.s-detail{font-size:13.5px;fill:var(--muted)}
+.figure svg .s-idx{font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.06em;fill:var(--teal)}
+.figure svg .s-tag{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.09em;fill:var(--muted)}
+.s-label{font-size:12.5px;fill:var(--muted)}
+.figure svg .s-value{font-family:var(--mono);font-size:14px;font-weight:600;fill:var(--ink);text-anchor:end}
+.s-note{font-size:13px;fill:var(--muted)}
+.s-big{font-family:var(--serif);font-size:38px;font-weight:600;fill:var(--ink)}
+.s-quote{font-size:14px;fill:var(--ink-soft)}
+
+/* ---------- reading ---------- */
+.reading{margin-top:clamp(52px,7.5vw,88px);border-top:2px solid var(--ink)}
+.pullquote{display:grid;grid-template-columns:190px minmax(0,1fr);gap:26px;padding:26px 0;border-bottom:1px solid var(--line)}
+.pullquote .micro{padding-top:6px}
+.pullquote p{font-family:var(--serif);font-size:clamp(18px,2.2vw,23px);line-height:1.75;color:var(--ink);max-width:46ch}
+.explain{display:grid;grid-template-columns:190px minmax(0,1fr);gap:26px;padding:clamp(26px,3.6vw,40px) 0;border-bottom:1px solid var(--line)}
+.explain .rail{display:flex;flex-direction:column;gap:7px;padding-top:4px}
+.rail .num{font:600 11px var(--mono);letter-spacing:.14em;color:var(--teal)}
+.rail .kicker{font-size:11.5px;color:var(--muted);letter-spacing:.02em}
+.explain h2{font-family:var(--serif);font-size:clamp(23px,2.7vw,31px);font-weight:600;line-height:1.4;margin-bottom:12px}
+.explain p{font-size:15.5px;line-height:1.95;color:var(--ink-soft);max-width:62ch}
+
+.boundary{margin-top:clamp(46px,6.4vw,76px);background:var(--ink);color:#eef1ec;padding:clamp(26px,3.8vw,42px)}
+.boundary .micro{color:#8fa09a}
+.boundary h2{font-family:var(--serif);font-size:clamp(23px,2.9vw,33px);font-weight:600;line-height:1.4;color:#f6f7f3;margin:10px 0 13px}
+.boundary p{font-size:14px;line-height:1.95;color:#c2ccc5;max-width:72ch}
+.boundary .mark{display:inline-block;color:#d08a72;margin-right:8px;font-family:var(--mono);font-size:12px}
+
+.quiz{margin-top:clamp(38px,5.4vw,60px);border:1px solid var(--line-strong);background:var(--surface)}
+.quiz-head{padding:20px 22px;border-bottom:1px solid var(--line)}
+.quiz-head h2{font-family:var(--serif);font-size:clamp(19px,2.3vw,26px);font-weight:600;line-height:1.45;margin-top:7px}
+.quiz-opts{display:grid}
+.quiz-choice{
+  display:flex;align-items:center;gap:13px;width:100%;padding:15px 22px;
+  border-bottom:1px solid var(--line);text-align:left;font-size:14px;font-weight:500;
+  transition:background .16s,box-shadow .16s;
+}
+.quiz-choice:last-of-type{border-bottom:0}
+.quiz-choice .k{flex:none;width:24px;height:24px;border:1px solid var(--line-strong);display:grid;place-items:center;font:600 10.5px var(--mono);color:var(--muted);transition:background .16s,color .16s,border-color .16s}
+.quiz-choice:hover{background:var(--panel)}
+.quiz-choice[data-state="correct"]{background:#eaf0e8;box-shadow:inset 2px 0 var(--green)}
+.quiz-choice[data-state="correct"] .k{background:var(--green);border-color:var(--green);color:#f4f7f2}
+.quiz-choice[data-state="wrong"]{background:#f6ece7;box-shadow:inset 2px 0 var(--rust)}
+.quiz-choice[data-state="wrong"] .k{background:var(--rust);border-color:var(--rust);color:#fbf5f1}
+.quiz-feedback{padding:15px 22px;border-top:1px solid var(--line);background:var(--panel);font-size:13px;line-height:1.8;color:var(--ink-soft)}
+.quiz-feedback strong{color:var(--ink);font-weight:650}
+
+.page-foot{margin-top:clamp(46px,6.4vw,76px);border-top:2px solid var(--ink);padding:18px 0 56px}
+.foot-nav{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line)}
+.foot-nav a{display:block;background:var(--paper);padding:16px 18px;transition:background .16s}
+.foot-nav small{display:block;font:600 9.5px var(--mono);letter-spacing:.12em;color:var(--muted);margin-bottom:5px}
+.foot-nav p{font-size:13.5px;font-weight:600;line-height:1.55}
+.foot-nav .next{text-align:right}
+.foot-nav a:hover{background:#f0f2ee}
+.foot-note{margin-top:20px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;font-size:11.5px;line-height:1.8;color:var(--muted)}
+.foot-note p{max-width:70ch}
+.foot-note a{border-bottom:1px solid var(--line-strong);transition:color .16s,border-color .16s}
+.foot-note a:hover{color:var(--teal);border-color:var(--teal)}
+.foot-source{margin-bottom:22px}
+.foot-links{display:flex;flex-wrap:wrap;gap:22px;margin-top:10px}
+.foot-links a{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:650;padding-bottom:4px;border-bottom:1px solid var(--line-strong);transition:color .16s,border-color .16s}
+.foot-links a:hover{color:var(--teal);border-color:var(--teal)}
+.skip{position:fixed;left:12px;top:-100px;z-index:30;background:var(--ink);color:var(--paper);padding:10px 18px;font-size:13px;transition:top .18s}
+.skip:focus{top:10px}
+
+@media (max-width:980px){
+  .fig-canvas svg{min-width:820px}
+}
+@media (max-width:980px){
+  .hero-grid{grid-template-columns:1fr;gap:26px}
+  .hero-side{max-width:56ch}
+  .bench-grid{grid-template-columns:1fr}
+  .log-col{border-right:0;border-bottom:1px solid var(--line-strong)}
+  .state-list{padding-top:4px}
+  .side-ledger{margin:16px 20px 20px}
+  .section-head,.pullquote,.explain{grid-template-columns:1fr;gap:10px}
+  .section-head .micro{padding-top:0}
+  .explain .rail{flex-direction:row;gap:12px;align-items:baseline}
+  .pullquote{padding:22px 0}
+}
+@media (max-width:620px){
+  .site-head nav{display:none}
+  .hero-meta .rule{display:none}
+  .hero-facts{grid-template-columns:1fr 1fr}
+  .hero-facts>div:nth-child(2){border-right:0}
+  .hero-facts>div:nth-child(3){grid-column:1/-1;border-top:1px solid var(--line);margin-top:14px}
+  .bench-tabs{width:100%}
+  .bench-tabs button{flex:1 1 auto;justify-content:center;padding:10px 8px;font-size:12px}
+  .bench-tabs button span{display:none}
+  .progress{margin-left:0}
+  .log-row{grid-template-columns:40px minmax(0,1fr);gap:10px}
+  .log-tag{grid-column:2;justify-self:start;margin-top:4px}
+  .bench-caption{flex-direction:column;align-items:flex-start;gap:8px}
+  .bench-caption .tag{margin-top:0}
+  .figure figcaption{flex-direction:column;gap:4px}
+  .figure-head .fig-tag{margin-left:0}
+  .foot-nav{grid-template-columns:1fr}
+  .foot-nav .next{text-align:left}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="site-head">
+  <div class="wrap">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">a·</span>
+      <span>
+        <b>AI AGENT 图解书</b>
+        <small>图解书 / VISUAL FIELDNOTES</small>
+      </span>
+    </div>
+    <nav aria-label="主导航">
+      <span>17 / 30</span>
+      <span class="sep" aria-hidden="true"></span>
+      <a href="../index.html#catalog">全部章节 <span aria-hidden="true">↗</span></a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-meta">
+        <span class="chip">17 / 30</span>
+        <span class="topic">运行时与任务可靠性</span>
+        <span class="rule" aria-hidden="true"></span>
+        <span class="mech">事件账本 · 投影 · 检查点</span>
+      </div>
+      <div class="hero-grid">
+        <h1 id="hero-title">重启以后，<br><span class="dim">别把昨天</span><br>再做一遍。</h1>
+        <div class="hero-side">
+          <p class="hero-alias">事件记录怎样支持状态恢复</p>
+          <p class="hero-lede">周报发送成功后，服务来不及记下结果就崩溃了。重启时日志只剩“发送已请求”。把整段流程再跑一遍，可能会发送第二封。</p>
+          <dl class="hero-facts">
+            <div><dt>机制</dt><dd>事件 · 投影 · 检查点</dd></div>
+            <div><dt>演示</dt><dd>三种恢复路径</dd></div>
+            <div><dt>阅读</dt><dd>约 6 分钟</dd></div>
+          </dl>
+          <a class="jump" href="#bench">进入回放台 <span aria-hidden="true">↓</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="bench" id="bench" aria-labelledby="bench-title">
+      <div class="bench-bar">
+        <div class="bench-title">
+          <span class="micro">回放台 / REPLAY BENCH</span>
+          <h2 id="bench-title">一份账本，三种读法。</h2>
+        </div>
+        <div class="bench-tabs" role="group" aria-label="选择恢复情况">
+          <button type="button" data-scenario="rebuild" data-case="0" aria-pressed="true"><span>01</span>重建状态</button>
+          <button type="button" data-scenario="checkpoint" data-case="1" aria-pressed="false"><span>02</span>从检查点继续</button>
+          <button type="button" data-scenario="unknown" data-case="2" aria-pressed="false"><span>03</span>发送结果未知</button>
+        </div>
+      </div>
+
+      <div class="bench-grid">
+        <div class="log-col">
+          <div class="col-head"><span>账本 / 事件流</span><span id="log-state">待回放</span></div>
+          <ol class="log" id="log"></ol>
+          <p class="log-foot">仅追加 / APPEND-ONLY · 事件写入后不再修改</p>
+        </div>
+        <div class="state-col">
+          <div class="col-head"><span>当前状态 / PROJECTED</span><span id="state-clock">T+0</span></div>
+          <dl class="state-list">
+            <div><dt>任务状态</dt><dd id="f-task">未开始</dd></div>
+            <div><dt>草稿</dt><dd id="f-draft">—</dd></div>
+            <div><dt>回执</dt><dd id="f-receipt">—</dd></div>
+            <div><dt>检查点</dt><dd id="f-checkpoint">—</dd></div>
+          </dl>
+          <div class="side-ledger">
+            <div class="side-ledger-head"><span>副作用账</span><span>不可重放</span></div>
+            <div class="side-count"><strong id="f-sent">0</strong><span>次发送</span></div>
+            <p class="side-note" id="side-note">回放只读取事实，不会增加这个数字。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bench-controls">
+        <button type="button" class="btn btn-solid" id="step">下一条 <span aria-hidden="true">→</span></button>
+        <button type="button" class="btn" id="auto" aria-pressed="false">自动回放</button>
+        <button type="button" class="btn btn-outline" id="query" hidden>核对 msg-0427</button>
+        <button type="button" class="btn" id="reset">重置</button>
+        <p class="progress" id="progress">已应用 0 / 4 条</p>
+      </div>
+
+      <div class="bench-caption">
+        <span class="tag" id="cap-tag">回放已有事实</span>
+        <p id="cap-text">从头读取已保存的事件，重新算出当前状态。回放只重建状态，不自动重发历史请求。</p>
+      </div>
+      <p class="sr-only" id="announce" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="section" aria-labelledby="figs-title">
+      <div class="section-head">
+        <span class="micro">三种走法 / THREE PATHS</span>
+        <div>
+          <h2 id="figs-title">同一份账本，读出三种结果。</h2>
+          <p>差别不在图画得好不好看，而在恢复时读哪一段、跳哪一段、以及是否承认“不知道”。三张图共用一套语法：实线是已发生的事实，虚线是尚未确认的部分。小屏可左右滑动查看整图。</p>
+        </div>
+      </div>
+
+      <figure class="figure">
+        <div class="figure-head">
+          <span class="idx">FIG. A</span>
+          <h3>重建状态：把账本从头算一遍</h3>
+          <span class="fig-tag">只读回放</span>
+        </div>
+        <div class="fig-canvas" role="group" tabindex="0" aria-label="机制图，可左右滚动查看"><svg viewBox="0 0 1000 440" role="img" aria-labelledby="figA-t figA-d">
+          <title id="figA-t">重建状态：读取全部事件，投影出当前状态，不重发请求</title>
+          <desc id="figA-d">左侧是四条已保存事件，其中 E3 发送请求已发出属于外部副作用。中间箭头表示投影。右侧状态为等待回执、草稿 v3、回执未知、发出次数 1。底部说明回放重建状态，不重发已发生的外部请求。</desc>
+          <rect width="1000" height="440" fill="var(--surface)"/>
+
+          <rect x="16" y="16" width="404" height="372" fill="var(--paper)" stroke="var(--line)"/>
+          <text x="36" y="48" class="s-kick">已保存的事件 · 同一任务</text>
+          <line x1="16" y1="64" x2="420" y2="64" stroke="var(--line)"/>
+
+          <rect x="16" y="176" width="404" height="56" fill="var(--rust-soft)"/>
+          <text x="36" y="92" class="s-idx">E1</text>
+          <text x="80" y="90" class="s-name">任务创建</text>
+          <text x="80" y="109" class="s-detail">周报 · 2026-04-27</text>
+          <text x="400" y="92" class="s-tag" text-anchor="end">状态事实</text>
+          <line x1="36" y1="120" x2="400" y2="120" stroke="var(--line)"/>
+
+          <text x="36" y="144" class="s-idx">E2</text>
+          <text x="80" y="142" class="s-name">草稿保存</text>
+          <text x="80" y="161" class="s-detail">draft v3 · 已持久化</text>
+          <text x="400" y="144" class="s-tag" text-anchor="end">状态事实</text>
+          <line x1="36" y1="176" x2="400" y2="176" stroke="var(--line)"/>
+
+          <text x="36" y="200" class="s-idx" style="fill:var(--rust)">E3</text>
+          <text x="80" y="198" class="s-name">发送请求已发出</text>
+          <text x="80" y="217" class="s-detail">业务标识 msg-0427</text>
+          <text x="400" y="200" class="s-tag" text-anchor="end" style="fill:var(--rust)">副作用</text>
+          <line x1="36" y1="232" x2="400" y2="232" stroke="var(--line)"/>
+
+          <text x="36" y="256" class="s-idx">E4</text>
+          <text x="80" y="254" class="s-name">服务崩溃</text>
+          <text x="80" y="273" class="s-detail">回执尚未写入账本</text>
+          <text x="400" y="256" class="s-tag" text-anchor="end">系统事件</text>
+          <line x1="36" y1="288" x2="400" y2="288" stroke="var(--line)"/>
+
+          <text x="36" y="322" class="s-note" style="fill:var(--ink-soft)">E3 是外部副作用：回放只读取结果，</text>
+          <text x="36" y="346" class="s-note">不会重新发送这封邮件。</text>
+
+          <defs>
+            <marker id="arrowA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="var(--teal)"/>
+            </marker>
+          </defs>
+          <line x1="432" y1="204" x2="548" y2="204" stroke="var(--teal)" stroke-width="1.5" marker-end="url(#arrowA)"/>
+          <text x="490" y="190" class="s-label" text-anchor="middle" style="fill:var(--teal)">投影</text>
+          <text x="490" y="224" class="s-label" text-anchor="middle">只读回放</text>
+
+          <rect x="560" y="16" width="424" height="372" fill="var(--paper)" stroke="var(--line)"/>
+          <text x="580" y="48" class="s-kick">投影后的当前状态</text>
+          <line x1="560" y1="64" x2="984" y2="64" stroke="var(--line)"/>
+
+          <text x="580" y="110" class="s-label">任务状态</text>
+          <text x="964" y="110" class="s-value">等待回执</text>
+          <line x1="580" y1="128" x2="964" y2="128" stroke="var(--line)"/>
+          <text x="580" y="162" class="s-label">草稿</text>
+          <text x="964" y="162" class="s-value">v3</text>
+          <line x1="580" y1="180" x2="964" y2="180" stroke="var(--line)"/>
+          <text x="580" y="214" class="s-label">回执</text>
+          <text x="964" y="214" class="s-value" style="fill:var(--rust)">未知</text>
+          <line x1="580" y1="232" x2="964" y2="232" stroke="var(--line)"/>
+          <text x="580" y="266" class="s-label">检查点</text>
+          <text x="964" y="266" class="s-value">—</text>
+          <line x1="580" y1="284" x2="964" y2="284" stroke="var(--line)"/>
+          <text x="580" y="318" class="s-label">发出次数</text>
+          <text x="964" y="318" class="s-value">1 次</text>
+
+          <text x="580" y="352" class="s-note" style="fill:var(--ink-soft)">账本重建的是状态，不是外部事实。</text>
+          <text x="580" y="374" class="s-note">邮件是否送达仍需单独核对。</text>
+
+          <rect x="16" y="408" width="7" height="7" fill="var(--rust)"/>
+          <text x="34" y="415" class="s-quote">回放重建状态，不重发已发生的外部请求。</text>
+        </svg></div>
+        <figcaption><b>回放已有事实</b><span>读取已保存事件，计算当前进度。这个投影过程只恢复状态，不自动重发历史工具请求。</span></figcaption>
+      </figure>
+
+      <figure class="figure">
+        <div class="figure-head">
+          <span class="idx">FIG. B</span>
+          <h3>从检查点继续：跳过已经算过的部分</h3>
+          <span class="fig-tag">缩短恢复路径</span>
+        </div>
+        <div class="fig-canvas" role="group" tabindex="0" aria-label="机制图，可左右滚动查看"><svg viewBox="0 0 1000 440" role="img" aria-labelledby="figB-t figB-d">
+          <title id="figB-t">从检查点继续：折叠前三条事件，只应用之后的回执事件</title>
+          <desc id="figB-d">左侧五条事件中，前三条被折叠进检查点，E4 写入检查点，E5 回执成功。右侧显示恢复路径：读取检查点、校验快照、应用 E5，本次读取 2 条，全部共 5 条。</desc>
+          <rect width="1000" height="440" fill="var(--surface)"/>
+
+          <rect x="16" y="16" width="404" height="372" fill="var(--paper)" stroke="var(--line)"/>
+          <text x="36" y="48" class="s-kick">已保存的事件 · 检查点之后</text>
+          <line x1="16" y1="64" x2="420" y2="64" stroke="var(--line)"/>
+
+          <g opacity="0.34">
+            <text x="36" y="90" class="s-idx">E1</text>
+            <text x="80" y="88" class="s-name">任务创建</text>
+            <text x="80" y="106" class="s-detail">周报 · 2026-04-27</text>
+            <line x1="36" y1="116" x2="400" y2="116" stroke="var(--line)"/>
+            <text x="36" y="142" class="s-idx">E2</text>
+            <text x="80" y="140" class="s-name">草稿保存</text>
+            <text x="80" y="158" class="s-detail">draft v3 · 已持久化</text>
+            <line x1="36" y1="168" x2="400" y2="168" stroke="var(--line)"/>
+            <text x="36" y="194" class="s-idx" style="fill:var(--rust)">E3</text>
+            <text x="80" y="192" class="s-name">发送请求已发出</text>
+            <text x="80" y="210" class="s-detail">业务标识 msg-0427</text>
+            <line x1="36" y1="220" x2="400" y2="220" stroke="var(--line)"/>
+          </g>
+
+          <rect x="16" y="220" width="404" height="52" fill="var(--teal-soft)"/>
+          <path d="M40 246 L48 238 L56 246 L48 254 Z" fill="var(--teal)"/>
+          <text x="72" y="242" class="s-name">检查点写入</text>
+          <text x="72" y="260" class="s-detail">位置 #3 · 状态：等待回执</text>
+          <text x="400" y="244" class="s-tag" text-anchor="end" style="fill:var(--teal)">恢复点</text>
+          <line x1="36" y1="272" x2="400" y2="272" stroke="var(--line)"/>
+
+          <text x="36" y="296" class="s-idx">E5</text>
+          <text x="80" y="294" class="s-name">回执成功</text>
+          <text x="80" y="312" class="s-detail">message-id 已确认</text>
+          <text x="400" y="296" class="s-tag" text-anchor="end" style="fill:var(--teal)">后续事件</text>
+
+          <text x="36" y="344" class="s-note" style="fill:var(--ink-soft)">浅色三条已折叠进检查点。</text>
+          <text x="36" y="366" class="s-note">检查点记录处理位置，账本仍是完整依据。</text>
+
+          <rect x="560" y="16" width="424" height="372" fill="var(--paper)" stroke="var(--line)"/>
+          <text x="580" y="48" class="s-kick">恢复路径</text>
+          <line x1="560" y1="64" x2="984" y2="64" stroke="var(--line)"/>
+
+          <rect x="580" y="92" width="22" height="22" fill="none" stroke="var(--line-strong)"/>
+          <text x="591" y="107" class="s-idx" text-anchor="middle" style="fill:var(--ink)">1</text>
+          <text x="618" y="102" class="s-name">读取检查点 #3</text>
+          <text x="618" y="122" class="s-detail">校验版本与状态快照</text>
+          <line x1="591" y1="118" x2="591" y2="172" stroke="var(--line-strong)" stroke-dasharray="3 4"/>
+
+          <rect x="580" y="172" width="22" height="22" fill="none" stroke="var(--line-strong)"/>
+          <text x="591" y="187" class="s-idx" text-anchor="middle" style="fill:var(--ink)">2</text>
+          <text x="618" y="182" class="s-name">应用后续事件 E5</text>
+          <text x="618" y="202" class="s-detail">回执成功 → 已完成</text>
+
+          <text x="580" y="286" class="s-big">2 / 5</text>
+          <text x="580" y="310" class="s-label">本次读取 / 全部事件</text>
+          <line x1="580" y1="328" x2="964" y2="328" stroke="var(--line)"/>
+          <text x="580" y="354" class="s-note" style="fill:var(--ink-soft)">检查点缩短恢复路径，</text>
+          <text x="580" y="376" class="s-note">但不能替代账本本身。</text>
+        </svg></div>
+        <figcaption><b>缩短恢复路径</b><span>检查点保存已处理到的位置与状态，再应用后续事件。示意中的序号只属于同一任务。</span></figcaption>
+      </figure>
+
+      <figure class="figure">
+        <div class="figure-head">
+          <span class="idx">FIG. C</span>
+          <h3>发送结果未知：账本之外再问一次</h3>
+          <span class="fig-tag">先核对外部结果</span>
+        </div>
+        <div class="fig-canvas" role="group" tabindex="0" aria-label="机制图，可左右滚动查看"><svg viewBox="0 0 1000 440" role="img" aria-labelledby="figC-t figC-d">
+          <title id="figC-t">发送结果未知：用业务标识查询外部服务，再决定下一步</title>
+          <desc id="figC-d">左侧账本只有四条事件，停在发送请求已发出与服务崩溃，没有回执。中间用业务标识 msg-0427 查询邮件服务。右侧三种结果：已发送则标为完成、未找到仍不足以断定未发送、无法查询则保留未知交人工。</desc>
+          <rect width="1000" height="440" fill="var(--surface)"/>
+
+          <rect x="16" y="16" width="372" height="372" fill="var(--paper)" stroke="var(--line)"/>
+          <text x="36" y="48" class="s-kick">账本停在哪里</text>
+          <line x1="16" y1="64" x2="388" y2="64" stroke="var(--line)"/>
+
+          <text x="36" y="92" class="s-idx">E1</text>
+          <text x="76" y="90" class="s-name">任务创建</text>
+          <text x="76" y="108" class="s-detail">周报 · 2026-04-27</text>
+          <line x1="36" y1="118" x2="368" y2="118" stroke="var(--line)"/>
+
+          <text x="36" y="144" class="s-idx">E2</text>
+          <text x="76" y="142" class="s-name">草稿保存</text>
+          <text x="76" y="160" class="s-detail">draft v3</text>
+          <line x1="36" y1="170" x2="368" y2="170" stroke="var(--line)"/>
+
+          <text x="36" y="196" class="s-idx" style="fill:var(--rust)">E3</text>
+          <text x="76" y="194" class="s-name">发送请求已发出</text>
+          <text x="76" y="212" class="s-detail">业务标识 msg-0427</text>
+          <text x="368" y="196" class="s-tag" text-anchor="end" style="fill:var(--rust)">副作用</text>
+          <line x1="36" y1="222" x2="368" y2="222" stroke="var(--line)"/>
+
+          <text x="36" y="248" class="s-idx">E4</text>
+          <text x="76" y="246" class="s-name">服务崩溃</text>
+          <text x="76" y="264" class="s-detail">回执尚未写入</text>
+          <text x="368" y="248" class="s-tag" text-anchor="end">系统事件</text>
+
+          <text x="36" y="304" class="s-note" style="fill:var(--rust)">只有“已发出”，没有“已送达”。</text>
+          <text x="36" y="326" class="s-note">账本自己无法回答送没送到。</text>
+
+          <rect x="412" y="128" width="200" height="132" fill="none" stroke="var(--teal)" stroke-dasharray="6 6"/>
+          <text x="432" y="158" class="s-kick" style="fill:var(--teal)">外部对账</text>
+          <text x="432" y="190" class="s-name">查询邮件服务</text>
+          <text x="432" y="214" class="s-detail">业务标识 msg-0427</text>
+          <text x="432" y="236" class="s-detail">只读 · 不重发</text>
+
+          <defs>
+            <marker id="arrowC" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="var(--line-strong)"/>
+            </marker>
+          </defs>
+          <path d="M612 182 L636 108" stroke="var(--line-strong)" stroke-dasharray="3 4" marker-end="url(#arrowC)"/>
+          <path d="M612 194 L636 206" stroke="var(--line-strong)" stroke-dasharray="3 4" marker-end="url(#arrowC)"/>
+          <path d="M612 226 L636 304" stroke="var(--line-strong)" stroke-dasharray="3 4" marker-end="url(#arrowC)"/>
+
+          <text x="636" y="52" class="s-kick">查询结果决定下一步</text>
+
+          <rect x="636" y="64" width="348" height="84" fill="var(--paper)" stroke="var(--line)"/>
+          <rect x="636" y="64" width="3" height="84" fill="var(--green)"/>
+          <text x="660" y="96" class="s-name">已发送</text>
+          <text x="660" y="120" class="s-detail">标为完成，不再发送</text>
+
+          <rect x="636" y="164" width="348" height="84" fill="var(--paper)" stroke="var(--line)"/>
+          <rect x="636" y="164" width="3" height="84" fill="var(--amber)"/>
+          <text x="660" y="196" class="s-name">未找到</text>
+          <text x="660" y="220" class="s-detail">仍不足以断定“没发出去”</text>
+
+          <rect x="636" y="264" width="348" height="84" fill="var(--paper)" stroke="var(--line)"/>
+          <rect x="636" y="264" width="3" height="84" fill="var(--rust)"/>
+          <text x="660" y="296" class="s-name">无法查询</text>
+          <text x="660" y="320" class="s-detail">保留未知，交人工处理</text>
+
+          <text x="16" y="415" class="s-quote">对账依据稳定业务标识；重复生效要靠接收方的幂等支持。</text>
+        </svg></div>
+        <figcaption><b>先核对外部结果</b><span>只有请求事件，没有成功回执。先用业务标识查询外部状态；无法确认时保留未知。</span></figcaption>
+      </figure>
+    </section>
+
+    <section class="reading" aria-label="正文">
+      <div class="pullquote">
+        <span class="micro">先借一个熟悉的画面</span>
+        <p>像根据流水账重建余额。重新算账，不应该把每笔转账再转一次。</p>
+      </div>
+
+      <section class="explain" aria-labelledby="read-0">
+        <div class="rail"><span class="num">01</span><span class="kicker">把概念放回例子</span></div>
+        <div>
+          <h2 id="read-0">事件是“发生过什么”</h2>
+          <p>任务创建、查询完成、草稿保存都可以成为事件。投影把这些事实按规则组合成当前状态。事件需要稳定标识和受控顺序，重复到达时应去重，不能只按不同机器的时间戳猜顺序。</p>
+        </div>
+      </section>
+
+      <section class="explain" aria-labelledby="read-1">
+        <div class="rail"><span class="num">02</span><span class="kicker">看清关键关系</span></div>
+        <div>
+          <h2 id="read-1">检查点是一张带位置的快照</h2>
+          <p>快照记录当时状态以及处理到第几条事件。恢复时验证快照与版本，再接着处理后续事件。快照损坏或不兼容时，需要能回到可靠记录重新构建。</p>
+        </div>
+      </section>
+
+      <section class="explain" aria-labelledby="read-2">
+        <div class="rail"><span class="num">03</span><span class="kicker">留意工程边界</span></div>
+        <div>
+          <h2 id="read-2">外部副作用单独对账</h2>
+          <p>发邮件、付款、创建工单可能已经发生，但回执丢失。稳定业务标识帮助查询和核对；接收方支持的幂等机制用于避免同一请求重复生效。没有这些能力时，不能承诺完全避免重复，恢复流程要保留不确定状态。</p>
+        </div>
+      </section>
+    </section>
+
+    <aside class="boundary">
+      <span class="micro">边界 / THE BOUNDARY</span>
+      <h2><span class="mark" aria-hidden="true">↳</span>存了 JSONL 就能可靠恢复？</h2>
+      <p>文件格式只解决记录形式。持久性、并发顺序、去重、检查点一致性和外部状态核对，都需要明确实现。</p>
+    </aside>
+
+    <section class="quiz" aria-labelledby="quiz-title" data-correct="1">
+      <div class="quiz-head">
+        <span class="micro">停一下 / CHECK YOURSELF</span>
+        <h2 id="quiz-title">重放一条“发送请求已发出”事件，要再次发邮件吗？</h2>
+      </div>
+      <div class="quiz-opts" role="group" aria-label="选择你的判断">
+        <button type="button" class="quiz-choice" data-answer="0" aria-pressed="false"><span class="k" aria-hidden="true">A</span><span>要，重放就是重做</span></button>
+        <button type="button" class="quiz-choice" data-answer="1" aria-pressed="false"><span class="k" aria-hidden="true">B</span><span>不要，先重建未知状态并查询外部结果</span></button>
+      </div>
+      <p class="quiz-feedback" role="status" hidden></p>
+    </section>
+
+    <footer class="page-foot">
+      <div class="foot-source">
+        <span class="micro">继续深入 / READ FURTHER</span>
+        <div class="foot-links">
+          <a href="../../event-state-recovery.md" download>下载工程原文 <span aria-hidden="true">↓</span></a>
+          <a href="../chapters/17.md" download>下载本篇图文版 <span aria-hidden="true">↓</span></a>
+        </div>
+      </div>
+      <div class="foot-nav">
+        <a href="16.html">
+          <small>上一篇 / 16</small>
+          <p>受控运行时怎样管理回合与执行步骤</p>
+        </a>
+        <a class="next" href="18.html">
+          <small>下一篇 / 18</small>
+          <p>澄清提问怎样挂起并恢复任务</p>
+        </a>
+      </div>
+      <div class="foot-note">
+        <p>图片、例子与结果均为教学示意，不代表真实服务运行或性能测试。</p>
+        <p><a href="../index.html#catalog">回到 30 篇图解目录 ↑</a></p>
+      </div>
+    </footer>
+
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  var EV = {
+    create: { id: 'E1', title: '任务创建', detail: '周报 · 2026-04-27', kind: 'state', tag: '状态事实', patch: { task: '已创建' } },
+    draft: { id: 'E2', title: '草稿保存', detail: 'draft v3 · 已持久化', kind: 'state', tag: '状态事实', patch: { draft: 'v3' } },
+    send: { id: 'E3', title: '发送请求已发出', detail: '业务标识 msg-0427', kind: 'side', tag: '副作用', patch: { sent: 1, receipt: '未知', task: '等待回执' } },
+    crash: { id: 'E4', title: '服务崩溃', detail: '回执尚未写入账本', kind: 'system', tag: '系统事件', patch: { receipt: '未知' } },
+    checkpoint: { id: 'E4', title: '检查点写入', detail: '位置 #3 · 状态：等待回执', kind: 'checkpoint', tag: '恢复点', patch: { checkpoint: '#3' } },
+    receipt: { id: 'E5', title: '回执成功', detail: 'message-id 已确认', kind: 'result', tag: '后续事件', patch: { receipt: '成功', task: '已完成' } },
+    query: { id: 'E5', title: '外部核对', detail: '查询 msg-0427 → 已发送', kind: 'query', tag: '对账', queryOnly: true, patch: { receipt: '成功', task: '已完成' } }
+  };
+
+  var SC = {
+    rebuild: {
+      tab: '重建状态',
+      capTag: '回放已有事实',
+      cap: '从头读取已保存的事件，重新算出当前状态。回放只重建状态，不自动重发历史请求。',
+      events: [EV.create, EV.draft, EV.send, EV.crash],
+      startIndex: 0,
+      startState: { task: '未开始', draft: '—', receipt: '—', checkpoint: '—', sent: 0 }
+    },
+    checkpoint: {
+      tab: '从检查点继续',
+      capTag: '缩短恢复路径',
+      cap: '检查点保存已处理到的位置与状态，只应用之后的事件。示意中的序号只属于同一任务。',
+      events: [EV.create, EV.draft, EV.send, EV.checkpoint, EV.receipt],
+      startIndex: 4,
+      startState: { task: '等待回执', draft: 'v3', receipt: '未知', checkpoint: '#3', sent: 1 }
+    },
+    unknown: {
+      tab: '发送结果未知',
+      capTag: '先核对外部结果',
+      cap: '只有请求事件，没有成功回执。先用业务标识查询外部状态；无法确认时保留未知。',
+      events: [EV.create, EV.draft, EV.send, EV.crash, EV.query],
+      startIndex: 0,
+      startState: { task: '未开始', draft: '—', receipt: '—', checkpoint: '—', sent: 0 }
+    }
+  };
+
+  var key = 'rebuild';
+  var state = null;
+  var cursor = 0;
+  var queried = false;
+  var timer = null;
+
+  var logEl = document.getElementById('log');
+  var stepBtn = document.getElementById('step');
+  var autoBtn = document.getElementById('auto');
+  var queryBtn = document.getElementById('query');
+  var resetBtn = document.getElementById('reset');
+  var progressEl = document.getElementById('progress');
+  var clockEl = document.getElementById('state-clock');
+  var logStateEl = document.getElementById('log-state');
+  var capTagEl = document.getElementById('cap-tag');
+  var capTextEl = document.getElementById('cap-text');
+  var announceEl = document.getElementById('announce');
+  var sideNoteEl = document.getElementById('side-note');
+  var sentEl = document.getElementById('f-sent');
+
+  var fields = {
+    task: 'f-task',
+    draft: 'f-draft',
+    receipt: 'f-receipt',
+    checkpoint: 'f-checkpoint'
+  };
+
+  function sc() { return SC[key]; }
+
+  function nextEvent() { return sc().events[cursor] || null; }
+
+  function stopAuto() {
+    if (timer !== null) {
+      clearInterval(timer);
+      timer = null;
+    }
+    autoBtn.setAttribute('aria-pressed', 'false');
+  }
+
+  function statusFor(i) {
+    var s = sc();
+    var ev = s.events[i];
+    if (s.startIndex && i < s.startIndex - 1) return 'folded';
+    if (s.startIndex && i === s.startIndex - 1) return 'applied';
+    if (ev && ev.queryOnly) return queried ? 'applied' : 'locked';
+    if (i < cursor) return 'applied';
+    return 'pending';
+  }
+
+  function renderLog(newIndex) {
+    var frag = document.createDocumentFragment();
+    sc().events.forEach(function (ev, i) {
+      var st = statusFor(i);
+      var li = document.createElement('li');
+      li.className = 'log-row' + (i === newIndex ? ' is-new' : '');
+      li.dataset.status = st;
+      li.dataset.kind = ev.kind;
+
+      var detail = ev.detail;
+      if (st === 'folded') detail = '已折叠 · 由检查点覆盖';
+      else if (st === 'locked') detail = '等待按业务标识查询';
+
+      var tag = ev.tag;
+      if (st === 'folded') tag = '已折叠';
+
+      var id = document.createElement('span');
+      id.className = 'log-id';
+      id.textContent = ev.id;
+
+      var main = document.createElement('span');
+      main.className = 'log-main';
+      var name = document.createElement('span');
+      name.className = 'log-name';
+      name.textContent = ev.title;
+      var det = document.createElement('span');
+      det.className = 'log-detail';
+      det.textContent = detail;
+      main.appendChild(name);
+      main.appendChild(det);
+
+      var tagEl = document.createElement('span');
+      tagEl.className = 'log-tag';
+      tagEl.textContent = tag;
+
+      li.appendChild(id);
+      li.appendChild(main);
+      li.appendChild(tagEl);
+      frag.appendChild(li);
+    });
+    logEl.innerHTML = '';
+    logEl.appendChild(frag);
+  }
+
+  function paintState(changed) {
+    Object.keys(fields).forEach(function (k) {
+      var node = document.getElementById(fields[k]);
+      var val = state[k] === undefined ? '—' : state[k];
+      node.textContent = val;
+      if (changed.indexOf(k) !== -1) {
+        node.classList.remove('is-changed');
+        void node.offsetWidth;
+        node.classList.add('is-changed');
+      }
+    });
+    sentEl.textContent = state.sent;
+  }
+
+  function progressText() {
+    var s = sc();
+    var applied = cursor - s.startIndex;
+    var total = 0;
+    s.events.forEach(function (ev, i) { if (i >= s.startIndex && !ev.queryOnly) total += 1; });
+    var text;
+    if (s.startIndex) {
+      text = '本次应用 ' + applied + ' / ' + total + ' 条 · 已折叠 ' + (s.startIndex - 1) + ' 条';
+    } else {
+      text = '已应用 ' + applied + ' / ' + total + ' 条';
+    }
+    if (queried) text += ' · 已核对';
+    progressEl.textContent = text;
+  }
+
+  function logStateText() {
+    var s = sc();
+    if (cursor >= s.events.length) return '回放完成';
+    var next = s.events[cursor];
+    if (next && next.queryOnly) return '等待对账';
+    if (s.startIndex && cursor === s.startIndex) return '已恢复';
+    if (cursor === 0) return '待回放';
+    return '回放中';
+  }
+
+  function syncControls() {
+    var next = nextEvent();
+    var blocked = !next || next.queryOnly;
+    stepBtn.disabled = blocked;
+    if (blocked) stopAuto();
+    autoBtn.disabled = blocked;
+
+    var isUnknown = key === 'unknown';
+    queryBtn.hidden = !isUnknown;
+    queryBtn.disabled = !(isUnknown && cursor === 4 && !queried);
+
+    clockEl.textContent = 'T+' + (cursor - sc().startIndex);
+    logStateEl.textContent = logStateText();
+  }
+
+  function update(changed, message, newIndex) {
+    paintState(changed || []);
+    renderLog(typeof newIndex === 'number' ? newIndex : -1);
+    progressText();
+    syncControls();
+    if (state.receipt === '成功') {
+      sideNoteEl.textContent = '回执已确认，发出次数仍为 1。回放没有重发。';
+    } else if (state.sent > 0) {
+      sideNoteEl.textContent = '回放没有增加这个数字。邮件是否真的送达，账本并不知道。';
+    } else {
+      sideNoteEl.textContent = '回放只读取事实，不会增加这个数字。';
+    }
+    if (message) announceEl.textContent = message;
+  }
+
+  function applyNext() {
+    var ev = nextEvent();
+    if (!ev || ev.queryOnly) return false;
+    Object.assign(state, ev.patch);
+    cursor += 1;
+    var msg = ev.id + ' ' + ev.title + ' 已应用。';
+    if (ev.kind === 'side') msg += '这是历史副作用，不会重新发送。';
+    if (ev.kind === 'checkpoint') msg += '恢复时从这里读取位置与状态。';
+    if (cursor >= sc().events.length) msg += '回放结束。';
+    update(Object.keys(ev.patch), msg, cursor - 1);
+    return true;
+  }
+
+  function doQuery() {
+    if (key !== 'unknown' || cursor !== 4 || queried) return;
+    var ev = SC.unknown.events[4];
+    Object.assign(state, ev.patch);
+    queried = true;
+    cursor = 5;
+    update(['receipt', 'task'], '外部核对完成：邮件已发送，标记完成，没有重发。', 4);
+  }
+
+  function init(k) {
+    stopAuto();
+    key = k;
+    queried = false;
+    var s = SC[k];
+    state = Object.assign({}, s.startState);
+    cursor = s.startIndex;
+
+    capTagEl.textContent = s.capTag;
+    capTextEl.textContent = s.cap;
+
+    document.querySelectorAll('[data-scenario]').forEach(function (btn) {
+      btn.setAttribute('aria-pressed', btn.dataset.scenario === k ? 'true' : 'false');
+    });
+
+    update([], '已选择「' + s.tab + '」。账本共有 ' + s.events.length + ' 条事件。', -1);
+  }
+
+  stepBtn.addEventListener('click', function () {
+    if (!applyNext()) stopAuto();
+  });
+
+  autoBtn.addEventListener('click', function () {
+    if (timer !== null) {
+      stopAuto();
+      return;
+    }
+    var first = nextEvent();
+    if (!first || first.queryOnly) return;
+    autoBtn.setAttribute('aria-pressed', 'true');
+    timer = setInterval(function () {
+      if (!applyNext()) {
+        stopAuto();
+        return;
+      }
+      var n = nextEvent();
+      if (!n || n.queryOnly) stopAuto();
+    }, 900);
+    applyNext();
+    var n2 = nextEvent();
+    if (!n2 || n2.queryOnly) stopAuto();
+  });
+
+  queryBtn.addEventListener('click', doQuery);
+
+  resetBtn.addEventListener('click', function () {
+    init(key);
+    announceEl.textContent = '已重置回放台。';
+  });
+
+  document.querySelectorAll('[data-scenario]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      init(btn.dataset.scenario);
+    });
+  });
+
+  init('rebuild');
+
+  var quiz = document.querySelector('.quiz');
+  var feedback = quiz.querySelector('.quiz-feedback');
+  var correct = quiz.dataset.correct;
+
+  quiz.querySelectorAll('.quiz-choice').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var pick = btn.dataset.answer;
+      var right = pick === correct;
+      quiz.querySelectorAll('.quiz-choice').forEach(function (b) {
+        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+        if (b.dataset.answer === correct) b.dataset.state = 'correct';
+        else if (b === btn) b.dataset.state = 'wrong';
+        else b.dataset.state = '';
+      });
+      feedback.hidden = false;
+      feedback.innerHTML = right
+        ? '<strong>对。</strong>重建状态与执行副作用是两个不同过程：先回放账本，再用业务标识核对邮件是否真的发出。'
+        : '<strong>再想一步。</strong>重放的是事实，不是动作。账本只说明“请求已发出”，是否真的送达要另外核对。';
+    });
+  });
+})();
+</script>
+</body>
+</html>
