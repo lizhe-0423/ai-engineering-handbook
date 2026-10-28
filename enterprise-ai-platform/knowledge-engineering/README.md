@@ -10,7 +10,8 @@
 
 - [复杂文档怎样解析、转换并通过验收](document-conversion.md)讨论结构化中间表示、可编辑文档重建、渲染与编辑检查，以及文件任务的安全和恢复。
 - [向量索引怎样和业务数据保持一致](vector-index-lifecycle.md)讨论本地事务任务、MQ、版本同步、全量重建和灰度切换，其中去重部分用教育题库说明业务判断。
+- [Wiki 式知识编译与增量维护](wiki-knowledge-maintenance.md)讨论知识条目的来源、依赖关系、修订审核与下架处理。
 
-两篇分别处理内容生产与检索索引维护。教育业务中的[题库生产](../../education-solutions/teacher-assistant/question-bank-ingestion.md)继续讲题干、选项、共用材料与答案的组合，不再重复通用解析流程。
+这些文章分别处理内容生产、检索索引与知识维护。教育业务中的[题库生产](../../education-solutions/teacher-assistant/question-bank-ingestion.md)继续讲题干、选项、共用材料与答案的组合，不再重复通用解析流程。
 
 内容生产可以复用这套知识。AI 负责生成初稿、调整结构和检查遗漏，业务人员确认事实和表达。正式发布的内容需要保留审核记录，避免未经确认的信息直接进入生产环境。
